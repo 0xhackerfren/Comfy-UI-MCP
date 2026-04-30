@@ -1,0 +1,69 @@
+{
+  "_meta": {
+    "title": "ACE Step 1.5 Music Generation",
+    "description": "Generate music using ACE Step 1.5 with full control over genre, lyrics, BPM, key, and time signature. Produces 15 seconds of commercial-quality audio.",
+    "requirements": ["ace_step_1.5_turbo_aio.safetensors"]
+  },
+  "1": {
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": {
+      "ckpt_name": "ace_step_1.5_turbo_aio.safetensors"
+    }
+  },
+  "2": {
+    "class_type": "TextEncodeAceStepAudio1.5",
+    "inputs": {
+      "tags": "cinematic, orchestral, epic, dramatic, strings, brass, timpani",
+      "lyrics": "[intro]\n(instrumental, building tension)\n[verse]\nThrough the valleys deep and mountains high\nWe carry on beneath the endless sky\n[chorus]\nRise above the storm\nFind the light within",
+      "seed": 42,
+      "duration": 15,
+      "language": "en",
+      "bpm": 130,
+      "keyscale": "D minor",
+      "timesignature": "4",
+      "generate_audio_codes": true,
+      "cfg_scale": 2.0,
+      "temperature": 0.85,
+      "top_p": 0.9,
+      "top_k": 0,
+      "min_p": 0,
+      "clip": ["1", 1]
+    }
+  },
+  "3": {
+    "class_type": "EmptyAceStep1.5LatentAudio",
+    "inputs": {
+      "seconds": 15,
+      "batch_size": 1
+    }
+  },
+  "4": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 42,
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 1.0,
+      "model": ["1", 0],
+      "positive": ["2", 0],
+      "negative": ["2", 0],
+      "latent_image": ["3", 0]
+    }
+  },
+  "5": {
+    "class_type": "VAEDecodeAudio",
+    "inputs": {
+      "samples": ["4", 0],
+      "vae": ["1", 2]
+    }
+  },
+  "6": {
+    "class_type": "SaveAudio",
+    "inputs": {
+      "filename_prefix": "ace_step_music",
+      "audio": ["5", 0]
+    }
+  }
+}

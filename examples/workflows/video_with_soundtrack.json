@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "title": "Video with Soundtrack (Mux)",
+    "description": "Demonstrates combining video frames with an audio track using CreateVideo. Load pre-generated images and audio, then save as a single MP4 with sound.",
+    "requirements": ["Any audio file in input/ folder", "Image sequence or batch in input/ folder"]
+  },
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "frame_001.png"
+    },
+    "_comment": "In practice, replace with a batch of images from VAEDecode or load multiple frames"
+  },
+  "2": {
+    "class_type": "LoadAudio",
+    "inputs": {
+      "audio": "soundtrack.flac"
+    }
+  },
+  "3": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "fps": 16.0,
+      "images": ["1", 0],
+      "audio": ["2", 0]
+    }
+  },
+  "4": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "video_with_audio",
+      "format": "auto",
+      "codec": "auto",
+      "video": ["3", 0]
+    }
+  }
+}

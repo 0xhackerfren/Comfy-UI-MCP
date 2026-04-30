@@ -1,0 +1,87 @@
+{
+  "_meta": {
+    "title": "Wan 2.2 Text-to-Video",
+    "description": "Basic Wan 2.2 text-to-video generation. Generates ~5s of video at 16fps (81 frames) from a text prompt.",
+    "requirements": ["wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors", "umt5_xxl_fp8_e4m3fn_scaled.safetensors", "wan_2.1_vae.safetensors"]
+  },
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors"
+    }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "A majestic eagle soaring through misty mountain peaks at sunrise, cinematic, dramatic lighting, 4k",
+      "clip": ["2", 0]
+    }
+  },
+  "5": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "blurry, low quality, distorted, watermark",
+      "clip": ["2", 0]
+    }
+  },
+  "6": {
+    "class_type": "EmptySD3LatentImage",
+    "inputs": {
+      "width": 832,
+      "height": 480,
+      "batch_size": 81
+    }
+  },
+  "7": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 42,
+      "steps": 20,
+      "cfg": 6.0,
+      "sampler_name": "uni_pc_bh2",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": ["1", 0],
+      "positive": ["4", 0],
+      "negative": ["5", 0],
+      "latent_image": ["6", 0]
+    }
+  },
+  "8": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["7", 0],
+      "vae": ["3", 0]
+    }
+  },
+  "9": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "fps": 16.0,
+      "images": ["8", 0]
+    }
+  },
+  "10": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "wan22_t2v",
+      "format": "auto",
+      "codec": "auto",
+      "video": ["9", 0]
+    }
+  }
+}

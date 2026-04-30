@@ -1,0 +1,48 @@
+name: Feature Request
+description: Suggest a new tool, template, or enhancement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea? We'd love to hear it. Describe the feature and why it would be useful.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What problem does this solve? What workflow is currently painful?
+      placeholder: "I want to generate consistent characters across multiple images, but currently I have to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How would this feature work? Include example tool calls if possible.
+      placeholder: |
+        A new tool `comfy_character_sheet` that takes a character description and generates
+        multiple consistent poses/angles using IP-Adapter...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - New tool
+        - New template
+        - Enhancement to existing tool
+        - Documentation
+        - Performance
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other approaches you've thought about?

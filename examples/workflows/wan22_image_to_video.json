@@ -1,0 +1,112 @@
+{
+  "_meta": {
+    "title": "Wan 2.2 Image-to-Video (with CLIP Vision)",
+    "description": "Animate a reference image into video using Wan 2.2 with CLIP vision conditioning. The start image guides the visual content while the text prompt describes the desired motion.",
+    "requirements": ["wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors", "umt5_xxl_fp8_e4m3fn_scaled.safetensors", "wan_2.1_vae.safetensors", "clip_vision_h.safetensors"]
+  },
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors"
+    }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "the subject gently turns their head and smiles, natural movement, soft lighting",
+      "clip": ["2", 0]
+    }
+  },
+  "5": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "blurry, distorted, static, frozen, low quality",
+      "clip": ["2", 0]
+    }
+  },
+  "10": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "reference_portrait.png"
+    }
+  },
+  "11": {
+    "class_type": "CLIPVisionLoader",
+    "inputs": {
+      "clip_name": "clip_vision_h.safetensors"
+    }
+  },
+  "12": {
+    "class_type": "CLIPVisionEncode",
+    "inputs": {
+      "clip_vision": ["11", 0],
+      "image": ["10", 0]
+    }
+  },
+  "6": {
+    "class_type": "WanImageToVideo",
+    "inputs": {
+      "width": 832,
+      "height": 480,
+      "length": 81,
+      "batch_size": 1,
+      "positive": ["4", 0],
+      "negative": ["5", 0],
+      "vae": ["3", 0],
+      "start_image": ["10", 0],
+      "clip_vision_output": ["12", 0]
+    }
+  },
+  "7": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 42,
+      "steps": 20,
+      "cfg": 6.0,
+      "sampler_name": "uni_pc_bh2",
+      "scheduler": "simple",
+      "denoise": 1.0,
+      "model": ["1", 0],
+      "positive": ["6", 0],
+      "negative": ["6", 1],
+      "latent_image": ["6", 2]
+    }
+  },
+  "8": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["7", 0],
+      "vae": ["3", 0]
+    }
+  },
+  "13": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "fps": 16.0,
+      "images": ["8", 0]
+    }
+  },
+  "9": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "wan22_i2v_animated",
+      "format": "auto",
+      "codec": "auto",
+      "video": ["13", 0]
+    }
+  }
+}

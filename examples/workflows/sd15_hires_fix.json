@@ -1,0 +1,92 @@
+{
+  "_meta": {
+    "title": "SD 1.5 Hires Fix (Two-Pass)",
+    "description": "Classic two-pass generation: first generate at low resolution, then upscale the latent and refine with a second KSampler pass at low denoise. Produces sharper, more detailed images.",
+    "requirements": ["Any SD1.5 checkpoint"]
+  },
+  "1": {
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": {
+      "ckpt_name": "v1-5-pruned-emaonly.safetensors"
+    },
+    "_note": "Replace ckpt_name with your SD1.5 checkpoint (e.g. 'v1-5-pruned-emaonly.safetensors')"
+  },
+  "2": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "a detailed fantasy landscape, rolling green hills, ancient castle in the distance, dramatic clouds, golden hour lighting, masterpiece, best quality",
+      "clip": ["1", 1]
+    }
+  },
+  "3": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "worst quality, low quality, blurry, deformed, ugly",
+      "clip": ["1", 1]
+    }
+  },
+  "4": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 512,
+      "height": 512,
+      "batch_size": 1
+    }
+  },
+  "5": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 42,
+      "steps": 20,
+      "cfg": 7.5,
+      "sampler_name": "euler_ancestral",
+      "scheduler": "normal",
+      "denoise": 1.0,
+      "model": ["1", 0],
+      "positive": ["2", 0],
+      "negative": ["3", 0],
+      "latent_image": ["4", 0]
+    },
+    "_comment": "First pass: full denoise at low resolution"
+  },
+  "6": {
+    "class_type": "LatentUpscale",
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "width": 1024,
+      "height": 1024,
+      "crop": "disabled",
+      "samples": ["5", 0]
+    }
+  },
+  "7": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 42,
+      "steps": 15,
+      "cfg": 7.5,
+      "sampler_name": "euler_ancestral",
+      "scheduler": "normal",
+      "denoise": 0.45,
+      "model": ["1", 0],
+      "positive": ["2", 0],
+      "negative": ["3", 0],
+      "latent_image": ["6", 0]
+    },
+    "_comment": "Second pass: low denoise on upscaled latent for detail refinement"
+  },
+  "8": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["7", 0],
+      "vae": ["1", 2]
+    }
+  },
+  "9": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "hires_fix",
+      "images": ["8", 0]
+    }
+  }
+}

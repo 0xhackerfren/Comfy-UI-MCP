@@ -1,0 +1,78 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please fill out the sections below to help us reproduce and fix the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+      placeholder: "When I tried to run comfy_use_template with template 'txt2img', I got..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps or tool calls to reproduce the issue.
+      placeholder: |
+        1. Call comfy_use_template with params...
+        2. Call comfy_run_workflow...
+        3. Error appears...
+    validations:
+      required: true
+
+  - type: input
+    id: mcp-version
+    attributes:
+      label: MCP Server version
+      description: "Run `npm list comfyui-mcp-server` or check package.json"
+      placeholder: "2.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: comfyui-version
+    attributes:
+      label: ComfyUI version
+      description: "Check ComfyUI system stats or the ComfyUI manager"
+      placeholder: "v0.3.x"
+
+  - type: dropdown
+    id: client
+    attributes:
+      label: MCP Client
+      options:
+        - Cursor
+        - Claude Desktop
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js version
+      description: "Run `node --version`"
+      placeholder: "v20.x.x"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or error output
+      description: Paste any error messages, stack traces, or ComfyUI logs.
+      render: shell

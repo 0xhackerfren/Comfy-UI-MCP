@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: ComfyUI Documentation
+    url: https://docs.comfy.org/
+    about: For ComfyUI-specific questions (not related to this MCP server)
+  - name: MCP Protocol Spec
+    url: https://modelcontextprotocol.io
+    about: For questions about the Model Context Protocol itself

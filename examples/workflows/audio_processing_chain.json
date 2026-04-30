@@ -1,0 +1,52 @@
+{
+  "_meta": {
+    "title": "Audio Processing Chain",
+    "description": "Demonstrates audio pipeline capabilities: load audio, trim to duration, concatenate multiple clips, and save as MP3. Useful for post-processing generated music.",
+    "requirements": ["Audio files in ComfyUI input/ folder"]
+  },
+  "1": {
+    "class_type": "LoadAudio",
+    "inputs": {
+      "audio": "clip_a.flac"
+    },
+    "_comment": "First audio clip"
+  },
+  "2": {
+    "class_type": "LoadAudio",
+    "inputs": {
+      "audio": "clip_b.flac"
+    },
+    "_comment": "Second audio clip"
+  },
+  "3": {
+    "class_type": "TrimAudioDuration",
+    "inputs": {
+      "audio": ["1", 0],
+      "max_duration": 15.0
+    },
+    "_comment": "Trim first clip to 15 seconds"
+  },
+  "4": {
+    "class_type": "TrimAudioDuration",
+    "inputs": {
+      "audio": ["2", 0],
+      "max_duration": 15.0
+    },
+    "_comment": "Trim second clip to 15 seconds"
+  },
+  "5": {
+    "class_type": "AudioConcat",
+    "inputs": {
+      "audio_1": ["3", 0],
+      "audio_2": ["4", 0]
+    },
+    "_comment": "Concatenate both clips into a 30s track"
+  },
+  "6": {
+    "class_type": "SaveAudioMP3",
+    "inputs": {
+      "filename_prefix": "audio_chain_output",
+      "audio": ["5", 0]
+    }
+  }
+}

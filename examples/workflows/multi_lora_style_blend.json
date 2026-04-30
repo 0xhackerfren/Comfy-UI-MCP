@@ -1,0 +1,97 @@
+{
+  "_meta": {
+    "title": "Multi-LoRA Style Blend",
+    "description": "Demonstrates chaining three LoRA loaders with different strengths to blend multiple styles/concepts. Each LoRA has independent model and CLIP strength control.",
+    "requirements": ["Any SD1.5 checkpoint", "Three compatible LoRA files"]
+  },
+  "1": {
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": {
+      "ckpt_name": "v1-5-pruned-emaonly.safetensors"
+    }
+  },
+  "2": {
+    "class_type": "LoraLoader",
+    "inputs": {
+      "lora_name": "style_lora_1.safetensors",
+      "strength_model": 0.8,
+      "strength_clip": 0.8,
+      "model": ["1", 0],
+      "clip": ["1", 1]
+    },
+    "_comment": "First LoRA: primary style (e.g. anime, watercolor, oil painting)"
+  },
+  "3": {
+    "class_type": "LoraLoader",
+    "inputs": {
+      "lora_name": "detail_lora_2.safetensors",
+      "strength_model": 0.5,
+      "strength_clip": 0.5,
+      "model": ["2", 0],
+      "clip": ["2", 1]
+    },
+    "_comment": "Second LoRA: detail enhancement or secondary concept"
+  },
+  "4": {
+    "class_type": "LoraLoader",
+    "inputs": {
+      "lora_name": "lighting_lora_3.safetensors",
+      "strength_model": 0.4,
+      "strength_clip": 0.3,
+      "model": ["3", 0],
+      "clip": ["3", 1]
+    },
+    "_comment": "Third LoRA: lighting or mood modifier at lower strength"
+  },
+  "5": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "a beautiful portrait of a woman in a garden, flowers, sunlight, highly detailed, sharp focus",
+      "clip": ["4", 1]
+    }
+  },
+  "6": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "worst quality, low quality, blurry, deformed, ugly, extra fingers",
+      "clip": ["4", 1]
+    }
+  },
+  "7": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 512,
+      "height": 768,
+      "batch_size": 1
+    }
+  },
+  "8": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 42,
+      "steps": 28,
+      "cfg": 7.0,
+      "sampler_name": "euler_ancestral",
+      "scheduler": "normal",
+      "denoise": 1.0,
+      "model": ["4", 0],
+      "positive": ["5", 0],
+      "negative": ["6", 0],
+      "latent_image": ["7", 0]
+    }
+  },
+  "9": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["8", 0],
+      "vae": ["1", 2]
+    }
+  },
+  "10": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "multi_lora_blend",
+      "images": ["9", 0]
+    }
+  }
+}
